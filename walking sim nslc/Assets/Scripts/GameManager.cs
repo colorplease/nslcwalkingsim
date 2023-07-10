@@ -42,6 +42,8 @@ public class GameManager : MonoBehaviour
     public GameObject gameOverComponents;
     public GameObject endWall;
 
+    public Transform spawnPointPlayer;
+
 
     void Start()
     {
@@ -49,13 +51,23 @@ public class GameManager : MonoBehaviour
          GameObject[] paintings = GameObject.FindGameObjectsWithTag("painting");
          paintingsLeft = paintings.Length;
          StartCoroutine(openingSequence());
-         StartCoroutine(jumpScare());
+         //StartCoroutine(jumpScare());
+    }
+
+    public void RestartScene()
+    {
+        print("hi all scott here");
+        playerController.enabled = false;
+        Player.gameObject.GetComponent<FirstPersonController>().enabled = false;
+        transform.position = spawnPointPlayer.position;
+
     }
 
     public void Retry()
     {
         PlayerPrefs.SetInt("jumpscare happened", 0);
-        SceneManager.LoadScene(0);
+        RestartScene();
+        
     }
 
     IEnumerator jumpScare()
@@ -104,6 +116,10 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        if(Player.gameObject.GetComponent<FirstPersonController>().isDead)
+        {
+            RestartScene();
+        }
         if(Input.GetKeyDown(KeyCode.R))
         {
             if(mapOpen == false)
