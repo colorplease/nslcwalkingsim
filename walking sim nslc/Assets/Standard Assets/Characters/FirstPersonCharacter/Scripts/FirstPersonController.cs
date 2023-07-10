@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityStandardAssets.CrossPlatformInput;
 using UnityStandardAssets.Utility;
 using Random = UnityEngine.Random;
+using UnityEngine.SceneManagement;
 
 namespace UnityStandardAssets.Characters.FirstPerson
 {
@@ -57,7 +58,15 @@ namespace UnityStandardAssets.Characters.FirstPerson
 			m_MouseLook.Init(transform , m_Camera.transform);
         }
 
+        void OnCollisionEnter(Collision other)
+        {
+            if(other.collider.tag == "Enemy")
+            {
+                PlayerPrefs.SetInt("jumpscare happened", 1);
+                SceneManager.LoadScene(0);
 
+            }
+        }
         // Update is called once per frame
         private void Update()
         {
