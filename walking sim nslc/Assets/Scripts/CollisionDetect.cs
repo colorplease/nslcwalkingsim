@@ -4,14 +4,14 @@ using UnityEngine;
 
 public class CollisionDetect : MonoBehaviour
 {
-    [SerializeField]Transform player;
-    public Transform jumpScareBox;
+    public GameManager gameManager;
     void OnCollisionEnter(Collision other)
-    {
-        print("wsg");
-        if(other.collider.tag == "Enemy")
         {
-            player.position = jumpScareBox.position;
+            if(other.collider.tag == "Enemy")
+            {
+                PlayerPrefs.SetInt("jumpscare happened", 1);
+                gameManager.RestartScene();
+
+            }
         }
-    }
 }
