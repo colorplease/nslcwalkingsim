@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
 using UnityStandardAssets.Characters.FirstPerson;
+using Photon.Pun;
 
 public class GameManager : MonoBehaviour
 {
@@ -37,6 +38,7 @@ public class GameManager : MonoBehaviour
     public AudioSource music;
 
     public TextMeshProUGUI paintingsCollected;
+    public TextMeshProUGUI testing;
 
     public ShakeMe shake;
     bool theChase;
@@ -50,6 +52,8 @@ public class GameManager : MonoBehaviour
     public bool messageInProgress;
 
     public Transform[] edgarSpawns;
+
+    [SerializeField]PhotonView photonView;
 
 
     void Start()
@@ -182,6 +186,18 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        if(Input.GetKeyDown(KeyCode.M))
+        {
+            if(photonView.IsMine)
+            {
+                photonView.RPC("ChangeLightStateMaster", RpcTarget.All);
+            }
+            else
+            {
+                photonView.RPC("ChangeLightStateClient", RpcTarget.All);
+            }
+            
+        }
         //print(Vector3.Distance(Player.transform.position, edgar.transform.position));
         if(Vector3.Distance(Player.transform.position, edgar.transform.position) < 30)
         {
@@ -314,5 +330,31 @@ public class GameManager : MonoBehaviour
         directionalLight.intensity = 4.15f;
         edgar.SetActive(false);
         StartCoroutine(controlChase());
+    }
+
+    [PunRPC]
+    void ChangeLightStateMaster()
+    {
+        if(photonView.IsMine)
+        {
+            testing.SetText("LIGHTS OFF");
+        }   
+        else
+        {
+            testing.SetText("LIGHTS ON");
+        }
+    }
+
+    [PunRPC]
+    void ChangeLightStateClient()
+    {
+        if(!photonView.IsMine)
+        {
+            testing.SetText("LIGHTS OFF");
+        }   
+        else
+        {
+            testing.SetText("LIGHTS ON");
+        }
     }
 }
