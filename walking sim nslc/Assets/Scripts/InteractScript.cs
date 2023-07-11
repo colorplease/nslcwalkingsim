@@ -6,8 +6,13 @@ using TMPro;
 public class InteractScript : MonoBehaviour
 {
     public float range;
+    public float backRange;
+    public float backRad;
     public GameObject pickUpText;
     public GameManager gameManage;
+    public Transform player;
+
+    public string[] behindYOU;
     // Update is called once per frame
     void Update()
     {
@@ -42,10 +47,19 @@ public class InteractScript : MonoBehaviour
             }
         }
         else
+        {
+            pickUpText.SetActive(false);
+        }
+        RaycastHit hit2;
+        if(Physics.Raycast(player.position, -player.transform.forward, out hit2, backRange))
+        {
+            //print(hit2.collider.tag);
+            if(hit2.collider.tag == "Enemy" && !gameManage.messageInProgress)
             {
-                pickUpText.SetActive(false);
+                StartCoroutine(gameManage.messageToPlayer(behindYOU));
             }
-        //Debug.DrawRay(transform.position, transform.forward, Color.red, range);
+        }
+        Debug.DrawRay(player.position, -player.transform.forward, Color.red, backRange);
     }
 
     

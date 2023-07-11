@@ -20,7 +20,9 @@ public class GameManager : MonoBehaviour
     public AudioSource gameSounds;
     [SerializeField]TextMeshProUGUI loadingPercentage;
     public GameObject loadingMenu;
+
     Coroutine openMap;
+    Coroutine restartSceneCoroutineStop;
 
     public int paintingsLeft;
 
@@ -42,24 +44,56 @@ public class GameManager : MonoBehaviour
     public GameObject gameOverComponents;
     public GameObject endWall;
 
-    public Transform spawnPointPlayer;
+    bool restarting;
+    public bool messageInProgress;
 
 
     void Start()
     {
-         StartCoroutine(controlChase());
          GameObject[] paintings = GameObject.FindGameObjectsWithTag("painting");
          paintingsLeft = paintings.Length;
          StartCoroutine(openingSequence());
-         //StartCoroutine(jumpScare());
+         StartCoroutine(jumpScare());
     }
 
     public void RestartScene()
     {
-        print("hi all scott here");
-        playerController.enabled = false;
-        Player.gameObject.GetComponent<FirstPersonController>().enabled = false;
-        transform.position = spawnPointPlayer.position;
+        if(!restarting)
+        {
+            print("yeah");
+            Player.gameObject.GetComponent<FirstPersonController>().isDead = false;
+            edgar.SetActive(false);
+            restarting = true;
+            playerController.enabled = false;
+            Player.gameObject.GetComponent<FirstPersonController>().enabled = false;
+            StartCoroutine(RestartSceneCoroutine());
+        }
+
+    }
+
+    IEnumerator RestartSceneCoroutine()
+    {
+        yield return new WaitForSeconds(0.1f);
+        Player.transform.position = new Vector3(45.6f, 0.94f, 73.37f);
+        yield return new WaitForSeconds(0.2f);
+        playerController.enabled = true;
+        Player.gameObject.GetComponent<FirstPersonController>().enabled = true;
+        Player.transform.rotation = Quaternion.Euler(0, 0, 0);
+        StopAllCoroutines();
+        flashLight.intensity = 0f;
+        theChase = false;
+        shake.shakeDuration = 0;
+        music.pitch = 1f;
+        heartBeatIntensifies.Stop();
+        directionalLight.intensity = 4.15f;
+        edgar.transform.position = edgarSpawn;
+        edgar.SetActive(false);
+        edgarJumpScare.SetActive(false);
+        gameOverComponents.SetActive(false);
+        music.Play();
+        StartCoroutine(controlChase());
+        StartCoroutine(openingSequence());
+        restarting = false;
 
     }
 
@@ -112,10 +146,36 @@ public class GameManager : MonoBehaviour
         paintingsCollected.SetText("PRESS 'R' TO OPEN YOUR MAP");
         yield return new WaitForSeconds(2);
         paintingsCollected.gameObject.SetActive(false);
+        StartCoroutine(controlChase());
+    }
+
+    public IEnumerator messageToPlayer(string[] messages)
+    {
+        messageInProgress = true;
+        foreach (string i in messages) 
+        {
+            paintingsCollected.gameObject.SetActive(true);
+            paintingsCollected.SetText(i);
+            yield return new WaitForSeconds(1);
+            paintingsCollected.gameObject.SetActive(false);
+            yield return new WaitForSeconds(0.5f);
+        }
+        messageInProgress = false;
     }
 
     void Update()
     {
+        //print(Vector3.Distance(Player.transform.position, edgar.transform.position));
+        if(Vector3.Distance(Player.transform.position, edgar.transform.position) < 30)
+        {
+            if(mapOpen)
+            {
+                loadingMenu.SetActive(false);
+                map.SetActive(false);
+                playerController.enabled = true;
+                StopCoroutine(openMap);
+            }
+        }
         if(Player.gameObject.GetComponent<FirstPersonController>().isDead)
         {
             RestartScene();
