@@ -42,6 +42,7 @@ MonoBehaviour:
   - ChangeLightState
   - ChangeLightStateClient
   - ChangeLightStateMaster
+  - ReadyUpGuys
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

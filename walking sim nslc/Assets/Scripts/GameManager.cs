@@ -54,6 +54,7 @@ public class GameManager : MonoBehaviour
     public Transform[] edgarSpawns;
 
     [SerializeField]PhotonView photonView;
+    public int numOfPlayersReady;
 
 
     void Start()
@@ -100,10 +101,7 @@ public class GameManager : MonoBehaviour
         edgarJumpScare.SetActive(false);
         gameOverComponents.SetActive(false);
         music.Play();
-        if(CHASE == null)
-        {
-            CHASE = StartCoroutine(controlChase());
-        }
+        //photonView.RPC("ReadyUpGuys", RpcTarget.All);
         string[] ouchie = {"OUCH"};
         StartCoroutine(messageToPlayer(ouchie));
         loadingMenu.SetActive(false);
@@ -164,10 +162,7 @@ public class GameManager : MonoBehaviour
         paintingsCollected.SetText("PRESS 'R' TO OPEN YOUR MAP");
         yield return new WaitForSeconds(2);
         paintingsCollected.gameObject.SetActive(false);
-        if(CHASE == null)
-        {
-            CHASE = StartCoroutine(controlChase());
-        }
+        photonView.RPC("ReadyUpGuys", RpcTarget.All);
     }
 
     public IEnumerator messageToPlayer(string[] messages)
@@ -184,11 +179,9 @@ public class GameManager : MonoBehaviour
         messageInProgress = false;
     }
 
-    void Update()
+    void UpdateLightState()
     {
-        if(Input.GetKeyDown(KeyCode.M))
-        {
-            if(photonView.IsMine)
+        if(photonView.IsMine)
             {
                 photonView.RPC("ChangeLightStateMaster", RpcTarget.All);
             }
@@ -196,7 +189,13 @@ public class GameManager : MonoBehaviour
             {
                 photonView.RPC("ChangeLightStateClient", RpcTarget.All);
             }
-            
+    }
+
+    void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.M))
+        {
+            UpdateLightState();
         }
         //print(Vector3.Distance(Player.transform.position, edgar.transform.position));
         if(Vector3.Distance(Player.transform.position, edgar.transform.position) < 30)
@@ -226,10 +225,7 @@ public class GameManager : MonoBehaviour
                 if(sequenceOpen != null)
                 {
                     StopCoroutine(sequenceOpen);
-                    if(CHASE == null)
-                    {
-                        CHASE = StartCoroutine(controlChase());
-                    }
+                    photonView.RPC("ReadyUpGuys", RpcTarget.All);
                     paintingsCollected.gameObject.SetActive(false);
                 }
                 openMap = StartCoroutine(LoadingSequence());
@@ -266,10 +262,7 @@ public class GameManager : MonoBehaviour
         if(sequenceOpen != null)
                 {
                     StopCoroutine(sequenceOpen);
-                    if(CHASE == null)
-                    {
-                        CHASE = StartCoroutine(controlChase());
-                    }
+                    photonView.RPC("ReadyUpGuys", RpcTarget.All);
                     paintingsCollected.gameObject.SetActive(false);
                 }
         StartCoroutine(displayPaintingsLeft());
@@ -332,16 +325,47 @@ public class GameManager : MonoBehaviour
         StartCoroutine(controlChase());
     }
 
+    IEnumerator controlChaseModded()
+    {
+        print("started");
+        float value = 0;
+        int index = 0;
+        for(int i = 0; i < edgarSpawns.Length; i++)
+        {
+            if(Vector3.Distance(Player.transform.position, edgarSpawns[i].position) > value)
+            {
+                index = i;
+                value = Vector3.Distance(Player.transform.position, edgarSpawns[i].position);
+            }
+        }
+        edgar.transform.position = edgarSpawns[index].position;  
+        flashLight.intensity = 7.94f;
+        shake.shakeDuration = 999;
+        theChase = true;
+        directionalLight.intensity = 0;
+        music.pitch = 0.5f;
+        edgar.SetActive(true);
+        heartBeatIntensifies.Play();
+        yield return new WaitForSeconds(Random.Range(minTimeChaseDuration, maxTimeChaseDuration));
+        UpdateLightState();
+    }
+
     [PunRPC]
     void ChangeLightStateMaster()
     {
         if(photonView.IsMine)
         {
-            testing.SetText("LIGHTS OFF");
+            StartCoroutine(controlChaseModded());
         }   
         else
         {
-            testing.SetText("LIGHTS ON");
+            flashLight.intensity = 0f;
+        theChase = false;
+        shake.shakeDuration = 0;
+        music.pitch = 1f;
+        heartBeatIntensifies.Stop();
+        directionalLight.intensity = 4.15f;
+        edgar.SetActive(false);
         }
     }
 
@@ -354,7 +378,39 @@ public class GameManager : MonoBehaviour
         }   
         else
         {
-            testing.SetText("LIGHTS ON");
+            flashLight.intensity = 0f;
+        theChase = false;
+        shake.shakeDuration = 0;
+        music.pitch = 1f;
+        heartBeatIntensifies.Stop();
+        directionalLight.intensity = 4.15f;
+        edgar.SetActive(false);
         }
     }
+
+    IEnumerator controlChase2(float imsorryperson)
+    {
+        yield return new WaitForSeconds(Random.Range(minTimeBetweenChase, maxTimeBetweenChase));
+        if(imsorryperson > 5)
+        {
+            photonView.RPC("ChangeLightStateMaster", RpcTarget.All);
+        }
+        else
+        {
+            photonView.RPC("ChangeLightStateClient", RpcTarget.All);
+        }
+    }
+
+    [PunRPC]
+    void ReadyUpGuys()
+    {
+            numOfPlayersReady++;
+            if(photonView.IsMine)
+            {
+                var whoGetsChasedFirst = Random.Range(0, 10);
+                StartCoroutine(controlChase2(whoGetsChasedFirst));
+            }
+    }
+
+ 
 }
