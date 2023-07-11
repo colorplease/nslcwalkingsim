@@ -66,9 +66,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
         {
             if(other.collider.tag == "Enemy")
             {
-                PlayerPrefs.SetInt("jumpscare happened", 1);
                 isDead = true;
-
             }
         }
         // Update is called once per frame

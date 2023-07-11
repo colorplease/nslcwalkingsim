@@ -77,6 +77,7 @@ public class GameManager : MonoBehaviour
 
     IEnumerator RestartSceneCoroutine()
     {
+        CHASE = null;
         yield return new WaitForSeconds(0.1f);
         Player.transform.position = new Vector3(45.6f, 0.94f, 73.37f);
         yield return new WaitForSeconds(0.2f);
@@ -99,7 +100,8 @@ public class GameManager : MonoBehaviour
         {
             CHASE = StartCoroutine(controlChase());
         }
-        sequenceOpen = StartCoroutine(openingSequence());
+        string[] ouchie = {"OUCH"};
+        StartCoroutine(messageToPlayer(ouchie));
         loadingMenu.SetActive(false);
         mapOpen = false;
         map.SetActive(false);
@@ -245,6 +247,15 @@ public class GameManager : MonoBehaviour
             endWall.SetActive(false);
 
         }
+        if(sequenceOpen != null)
+                {
+                    StopCoroutine(sequenceOpen);
+                    if(CHASE == null)
+                    {
+                        CHASE = StartCoroutine(controlChase());
+                    }
+                    paintingsCollected.gameObject.SetActive(false);
+                }
         StartCoroutine(displayPaintingsLeft());
     }
 
