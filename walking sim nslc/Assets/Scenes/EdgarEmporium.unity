@@ -30164,8 +30164,8 @@ MonoBehaviour:
   directionalLight: {fileID: 410087040}
   minTimeBetweenChase: 10
   maxTimeBetweenChase: 50
-  minTimeChaseDuration: 5
-  maxTimeChaseDuration: 25
+  minTimeChaseDuration: 20
+  maxTimeChaseDuration: 35
   map: {fileID: 1307959767}
   clips:
   - {fileID: 8300000, guid: ba2b3c94f30acbf4fb7def1f4f7f2413, type: 3}

@@ -26,6 +26,7 @@ public class GameManager : MonoBehaviour
     Coroutine restartSceneCoroutineStop;
     Coroutine sequenceOpen;
     Coroutine CHASE;
+    Coroutine moddedChase;
 
     public int paintingsLeft;
 
@@ -193,10 +194,6 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.M))
-        {
-            UpdateLightState();
-        }
         //print(Vector3.Distance(Player.transform.position, edgar.transform.position));
         if(Vector3.Distance(Player.transform.position, edgar.transform.position) < 30)
         {
@@ -355,17 +352,19 @@ public class GameManager : MonoBehaviour
     {
         if(photonView.IsMine)
         {
-            StartCoroutine(controlChaseModded());
+            moddedChase = null;
+            moddedChase = StartCoroutine(controlChaseModded());
         }   
         else
         {
+            StopCoroutine(controlChaseModded());
             flashLight.intensity = 0f;
-        theChase = false;
-        shake.shakeDuration = 0;
-        music.pitch = 1f;
-        heartBeatIntensifies.Stop();
-        directionalLight.intensity = 4.15f;
-        edgar.SetActive(false);
+            theChase = false;
+            shake.shakeDuration = 0;
+            music.pitch = 1f;
+            heartBeatIntensifies.Stop();
+            directionalLight.intensity = 4.15f;
+            edgar.SetActive(false);
         }
     }
 
@@ -374,17 +373,19 @@ public class GameManager : MonoBehaviour
     {
         if(!photonView.IsMine)
         {
-            StartCoroutine(controlChaseModded());
+            moddedChase = null;
+            moddedChase = StartCoroutine(controlChaseModded());
         }   
         else
         {
+            StopCoroutine(controlChaseModded());
             flashLight.intensity = 0f;
-        theChase = false;
-        shake.shakeDuration = 0;
-        music.pitch = 1f;
-        heartBeatIntensifies.Stop();
-        directionalLight.intensity = 4.15f;
-        edgar.SetActive(false);
+            theChase = false;
+            shake.shakeDuration = 0;
+            music.pitch = 1f;
+            heartBeatIntensifies.Stop();
+            directionalLight.intensity = 4.15f;
+            edgar.SetActive(false);
         }
     }
 
