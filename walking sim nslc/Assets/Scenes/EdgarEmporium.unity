@@ -18895,7 +18895,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1204010328
 RectTransform:
   m_ObjectHideFlags: 0
@@ -30196,6 +30196,7 @@ MonoBehaviour:
   - {fileID: 92874458}
   - {fileID: 2295464}
   photonView: {fileID: 1817253045}
+  numOfPlayersReady: 0
 --- !u!4 &1817253041
 Transform:
   m_ObjectHideFlags: 0

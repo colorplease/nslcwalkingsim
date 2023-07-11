@@ -374,7 +374,7 @@ public class GameManager : MonoBehaviour
     {
         if(!photonView.IsMine)
         {
-            testing.SetText("LIGHTS OFF");
+            StartCoroutine(controlChaseModded());
         }   
         else
         {
@@ -390,6 +390,7 @@ public class GameManager : MonoBehaviour
 
     IEnumerator controlChase2(float imsorryperson)
     {
+        print("chase in action");
         yield return new WaitForSeconds(Random.Range(minTimeBetweenChase, maxTimeBetweenChase));
         if(imsorryperson > 5)
         {
