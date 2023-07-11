@@ -23,6 +23,8 @@ public class GameManager : MonoBehaviour
 
     Coroutine openMap;
     Coroutine restartSceneCoroutineStop;
+    Coroutine sequenceOpen;
+    Coroutine CHASE;
 
     public int paintingsLeft;
 
@@ -47,12 +49,14 @@ public class GameManager : MonoBehaviour
     bool restarting;
     public bool messageInProgress;
 
+    public Transform[] edgarSpawns;
+
 
     void Start()
     {
          GameObject[] paintings = GameObject.FindGameObjectsWithTag("painting");
-         paintingsLeft = paintings.Length;
-         StartCoroutine(openingSequence());
+         paintingsLeft = paintings.Length - 1;
+         sequenceOpen = StartCoroutine(openingSequence());
          StartCoroutine(jumpScare());
     }
 
@@ -91,8 +95,16 @@ public class GameManager : MonoBehaviour
         edgarJumpScare.SetActive(false);
         gameOverComponents.SetActive(false);
         music.Play();
-        StartCoroutine(controlChase());
-        StartCoroutine(openingSequence());
+        if(CHASE == null)
+        {
+            CHASE = StartCoroutine(controlChase());
+        }
+        sequenceOpen = StartCoroutine(openingSequence());
+        loadingMenu.SetActive(false);
+        mapOpen = false;
+        map.SetActive(false);
+        playerController.enabled = true;
+        StopCoroutine(openMap);
         restarting = false;
 
     }
@@ -146,7 +158,10 @@ public class GameManager : MonoBehaviour
         paintingsCollected.SetText("PRESS 'R' TO OPEN YOUR MAP");
         yield return new WaitForSeconds(2);
         paintingsCollected.gameObject.SetActive(false);
-        StartCoroutine(controlChase());
+        if(CHASE == null)
+        {
+            CHASE = StartCoroutine(controlChase());
+        }
     }
 
     public IEnumerator messageToPlayer(string[] messages)
@@ -168,7 +183,7 @@ public class GameManager : MonoBehaviour
         //print(Vector3.Distance(Player.transform.position, edgar.transform.position));
         if(Vector3.Distance(Player.transform.position, edgar.transform.position) < 30)
         {
-            if(mapOpen)
+            if(mapOpen && edgar.activeSelf)
             {
                 loadingMenu.SetActive(false);
                 map.SetActive(false);
@@ -189,6 +204,15 @@ public class GameManager : MonoBehaviour
                 if(openMap != null)
                 {
                     StopCoroutine(openMap);
+                }
+                if(sequenceOpen != null)
+                {
+                    StopCoroutine(sequenceOpen);
+                    if(CHASE == null)
+                    {
+                        CHASE = StartCoroutine(controlChase());
+                    }
+                    paintingsCollected.gameObject.SetActive(false);
                 }
                 openMap = StartCoroutine(LoadingSequence());
             }
@@ -250,7 +274,19 @@ public class GameManager : MonoBehaviour
 
     IEnumerator controlChase()
     {
+        print("started");
         yield return new WaitForSeconds(Random.Range(minTimeBetweenChase, maxTimeBetweenChase));
+        float value = 0;
+        int index = 0;
+        for(int i = 0; i < edgarSpawns.Length; i++)
+        {
+            if(Vector3.Distance(Player.transform.position, edgarSpawns[i].position) > value)
+            {
+                index = i;
+                value = Vector3.Distance(Player.transform.position, edgarSpawns[i].position);
+            }
+        }
+        edgar.transform.position = edgarSpawns[index].position;  
         flashLight.intensity = 7.94f;
         shake.shakeDuration = 999;
         theChase = true;
@@ -258,11 +294,6 @@ public class GameManager : MonoBehaviour
         music.pitch = 0.5f;
         edgar.SetActive(true);
         heartBeatIntensifies.Play();
-        loadingMenu.SetActive(false);
-        mapOpen = false;
-        map.SetActive(false);
-        playerController.enabled = true;
-        StopCoroutine(openMap);
         yield return new WaitForSeconds(Random.Range(minTimeChaseDuration, maxTimeChaseDuration));
         flashLight.intensity = 0f;
         theChase = false;
@@ -270,7 +301,6 @@ public class GameManager : MonoBehaviour
         music.pitch = 1f;
         heartBeatIntensifies.Stop();
         directionalLight.intensity = 4.15f;
-        edgar.transform.position = edgarSpawn;
         edgar.SetActive(false);
         StartCoroutine(controlChase());
     }
