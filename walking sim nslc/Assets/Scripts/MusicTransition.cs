@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MusicTransition : MonoBehaviour
 {
@@ -15,6 +16,14 @@ public class MusicTransition : MonoBehaviour
             
         }
         else
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    void Update()
+    {
+        if(SceneManager.GetActiveScene().name == "EdgarEmporium")
         {
             Destroy(gameObject);
         }

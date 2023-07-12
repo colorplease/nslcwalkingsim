@@ -41,6 +41,19 @@ public class InteractScript : MonoBehaviour
                     pickUpText.GetComponent<TextMeshProUGUI>().SetText("collect all paintings before you leave");
                 }
             }
+            else if(hit.collider.tag == "winner")
+            {
+                if(!pickUpText.activeSelf && !gameManage.map.activeSelf && !gameManage.loadingMenu.activeSelf)
+                {
+                    pickUpText.SetActive(true);
+                    pickUpText.GetComponent<TextMeshProUGUI>().SetText("Press E to win the damn game");
+                }
+                if(Input.GetKeyDown(KeyCode.E))
+                    {
+                        hit.collider.gameObject.SetActive(false);
+                        gameManage.GameEnd();
+                    }
+            }
             else
             {
                 pickUpText.SetActive(false);
@@ -59,8 +72,10 @@ public class InteractScript : MonoBehaviour
                 StartCoroutine(gameManage.messageToPlayer(behindYOU));
             }
         }
-        Debug.DrawRay(player.position, -player.transform.forward, Color.red, backRange);
+        //Debug.DrawRay(player.position, -player.transform.forward, Color.red, backRange);
     }
+
+    
 
     
 }

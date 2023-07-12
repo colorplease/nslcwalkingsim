@@ -41,6 +41,7 @@ public class GameManager : MonoBehaviour
 
     public TextMeshProUGUI paintingsCollected;
     public TextMeshProUGUI testing;
+    public TextMeshProUGUI deathSecondsLeft;
 
     public ShakeMe shake;
     bool theChase;
@@ -49,6 +50,7 @@ public class GameManager : MonoBehaviour
     public GameObject edgarJumpScare;
     public GameObject gameOverComponents;
     public GameObject endWall;
+    public GameObject deathScreen;
 
     bool restarting;
     public bool messageInProgress;
@@ -102,17 +104,48 @@ public class GameManager : MonoBehaviour
         edgar.SetActive(false);
         edgarJumpScare.SetActive(false);
         gameOverComponents.SetActive(false);
+        StartCoroutine(RestartSceneCoroutinePart2());
+        
+    }
+
+    IEnumerator RestartSceneCoroutinePart2()
+    {
+        deathScreen.SetActive(true);
+        deathSecondsLeft.SetText("10");
+        yield return new WaitForSeconds(1);
+        deathSecondsLeft.SetText("9");
+        yield return new WaitForSeconds(1);
+        deathSecondsLeft.SetText("8");
+        yield return new WaitForSeconds(1);
+        deathSecondsLeft.SetText("7");
+        yield return new WaitForSeconds(1);
+        deathSecondsLeft.SetText("6");
+        yield return new WaitForSeconds(1);
+        deathSecondsLeft.SetText("5");
+        yield return new WaitForSeconds(1);
+        deathSecondsLeft.SetText("4");
+        yield return new WaitForSeconds(1);
+        deathSecondsLeft.SetText("3");
+        yield return new WaitForSeconds(1);
+        deathSecondsLeft.SetText("2");
+        yield return new WaitForSeconds(1);
+        deathSecondsLeft.SetText("1");
+        yield return new WaitForSeconds(1);
+        deathSecondsLeft.SetText("0");
+        yield return new WaitForSeconds(1);
+        deathScreen.SetActive(false);
+        print("e");
         music.Play();
         //photonView.RPC("ReadyUpGuys", RpcTarget.All);
         string[] ouchie = {"OUCH"};
         StartCoroutine(messageToPlayer(ouchie));
+        UpdateLightState();
         loadingMenu.SetActive(false);
         mapOpen = false;
         map.SetActive(false);
         playerController.enabled = true;
         StopCoroutine(openMap);
         restarting = false;
-
     }
 
     public void Retry()
@@ -195,6 +228,11 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        //if(Input.GetKeyDown(KeyCode.L))
+        //{
+            //string[] winner = {"YOU WIN"};
+            //StartCoroutine(messageToPlayer(winner));
+        //}
         //print(Vector3.Distance(Player.transform.position, edgar.transform.position));
         if(Vector3.Distance(Player.transform.position, edgar.transform.position) < 30)
         {
@@ -420,6 +458,69 @@ public class GameManager : MonoBehaviour
                 }
                 
             }
+    }
+
+    public void GameEnd()
+    {
+            if(!photonView.IsMine)
+            {
+                photonView.RPC("MasterWin", RpcTarget.All);
+            }
+            else
+            {
+                photonView.RPC("ClientWin", RpcTarget.All);
+            }
+    }
+
+    IEnumerator actualEnding()
+    {
+        
+        yield return new WaitForSeconds(8f);
+        //add map selector later
+        PhotonNetwork.LoadLevel("EdgarEmporium");
+    }
+
+    [PunRPC]
+    void ClientWin()
+    {
+        if(photonView.IsMine)
+        {
+            paintingsCollected.gameObject.SetActive(true);
+            paintingsCollected.SetText("YOU WIN");
+            gameSounds.PlayOneShot(clips[3]);
+            music.Stop();
+            StartCoroutine(actualEnding());
+        }
+        else
+        {
+            paintingsCollected.gameObject.SetActive(true);
+            paintingsCollected.SetText("YOU SUCK");
+            gameSounds.PlayOneShot(clips[4]);
+            music.Stop();
+            StartCoroutine(actualEnding());
+        }
+    }
+
+    
+    [PunRPC]
+    void MasterWin()
+    {
+        if(!photonView.IsMine)
+        {
+            paintingsCollected.gameObject.SetActive(true);
+            paintingsCollected.SetText("YOU WIN");
+            gameSounds.PlayOneShot(clips[3]);
+            music.Stop();
+            StartCoroutine(actualEnding());
+        }
+        else
+        {
+            paintingsCollected.gameObject.SetActive(true);
+            paintingsCollected.SetText("YOU SUCK");
+            gameSounds.PlayOneShot(clips[4]);
+            music.Stop();
+            StartCoroutine(actualEnding());
+        }
     }
 
  
