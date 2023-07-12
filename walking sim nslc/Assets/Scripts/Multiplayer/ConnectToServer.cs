@@ -11,6 +11,7 @@ public class ConnectToServer : MonoBehaviourPunCallbacks
     {
         print("1");
         PhotonNetwork.ConnectUsingSettings();
+        StartCoroutine(connectTimeOut());
     }
 
     public override void OnConnectedToMaster()
@@ -23,5 +24,11 @@ public class ConnectToServer : MonoBehaviourPunCallbacks
     {
         print("3");
         SceneManager.LoadScene("Lobby");
+    }
+
+    IEnumerator connectTimeOut()
+    {
+        yield return new WaitForSeconds(7f);
+        PhotonNetwork.ConnectUsingSettings();
     }
 }

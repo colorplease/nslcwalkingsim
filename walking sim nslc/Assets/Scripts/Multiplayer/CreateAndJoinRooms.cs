@@ -15,10 +15,15 @@ public class CreateAndJoinRooms : MonoBehaviourPunCallbacks
     [SerializeField]GameObject waiting;
     [SerializeField]TextMeshProUGUI friendDisplay;
     [SerializeField]TextMeshProUGUI countDownGameStart;
+    [SerializeField]TextMeshProUGUI errorMessage;
+
+    [SerializeField]TextMeshProUGUI lobbyName;
     int players;
 
     bool yeahIJoinedLetskiss;
     bool gameStarting;
+
+    Coroutine errorTimeOut;
 
     void Start()
     {
@@ -27,6 +32,7 @@ public class CreateAndJoinRooms : MonoBehaviourPunCallbacks
 
     public void CreateRoom()
     {
+        errorTimeOut = StartCoroutine(errorTimeOutCoroutine());
         PlayerPrefs.SetInt("jumpscare happened", 0);
         CreateAndJoinRoomObject.SetActive(false);
         PhotonNetwork.CreateRoom(createInput.text);
@@ -34,6 +40,7 @@ public class CreateAndJoinRooms : MonoBehaviourPunCallbacks
 
     public void JoinRoom()
     {
+        errorTimeOut = StartCoroutine(errorTimeOutCoroutine());
         PlayerPrefs.SetInt("jumpscare happened", 0);
         CreateAndJoinRoomObject.SetActive(false);
         PhotonNetwork.JoinRoom(joinInput.text);
@@ -43,9 +50,19 @@ public class CreateAndJoinRooms : MonoBehaviourPunCallbacks
     {
         waiting.SetActive(true);
         yeahIJoinedLetskiss = true;
-        
+        StopCoroutine(errorTimeOut);
+        lobbyName.SetText("LOBBY NAME: " + PhotonNetwork.CurrentRoom.Name);
         //PhotonNetwork.LoadLevel("EdgarEmporium");
     }
+
+    IEnumerator errorTimeOutCoroutine()
+    {
+        yield return new WaitForSeconds(7f);
+        CreateAndJoinRoomObject.SetActive(true);
+        errorMessage.SetText("can't connect for some reason pls try again :(");
+    }
+
+    
 
     void Update()
     {
