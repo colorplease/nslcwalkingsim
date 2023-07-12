@@ -40,7 +40,7 @@ public class GameManager : MonoBehaviour
     public AudioSource music;
 
     public TextMeshProUGUI paintingsCollected;
-    public TextMeshProUGUI testing;
+    public TextMeshProUGUI paintingsCollectedHUD;
     public TextMeshProUGUI deathSecondsLeft;
 
     public ShakeMe shake;
@@ -64,9 +64,10 @@ public class GameManager : MonoBehaviour
     void Start()
     {
          GameObject[] paintings = GameObject.FindGameObjectsWithTag("painting");
-         paintingsLeft = paintings.Length - 1;
+         paintingsLeft = paintings.Length;
          sequenceOpen = StartCoroutine(openingSequence());
          StartCoroutine(jumpScare());
+         paintingsCollectedHUD.SetText(paintingsLeft.ToString());
     }
 
     public void RestartScene()
@@ -288,6 +289,7 @@ public class GameManager : MonoBehaviour
         if(paintingsLeft > 0)
         {
             paintingsCollected.SetText(paintingsLeft.ToString() + " LEFT");
+            paintingsCollectedHUD.SetText(paintingsLeft.ToString());
         }
         else
         {
@@ -306,9 +308,11 @@ public class GameManager : MonoBehaviour
 
     IEnumerator displayPaintingsLeft()
     {
+        paintingsCollectedHUD.gameObject.SetActive(false);
         paintingsCollected.gameObject.SetActive(true);
         yield return new WaitForSeconds(1);
         paintingsCollected.gameObject.SetActive(false);
+        paintingsCollectedHUD.gameObject.SetActive(true);
     }
 
     IEnumerator LoadingSequence()
