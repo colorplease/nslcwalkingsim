@@ -27,6 +27,7 @@ public class GameManager : MonoBehaviour
     Coroutine sequenceOpen;
     Coroutine CHASE;
     Coroutine moddedChase;
+    Coroutine controlChase2Coroutine;
 
     public int paintingsLeft;
 
@@ -182,7 +183,7 @@ public class GameManager : MonoBehaviour
 
     void UpdateLightState()
     {
-        if(photonView.IsMine)
+            if(!photonView.IsMine)
             {
                 photonView.RPC("ChangeLightStateMaster", RpcTarget.All);
             }
@@ -291,7 +292,7 @@ public class GameManager : MonoBehaviour
 
     IEnumerator controlChase()
     {
-        print("started");
+        //print("started");
         yield return new WaitForSeconds(Random.Range(minTimeBetweenChase, maxTimeBetweenChase));
         float value = 0;
         int index = 0;
@@ -324,7 +325,7 @@ public class GameManager : MonoBehaviour
 
     IEnumerator controlChaseModded()
     {
-        print("started");
+
         float value = 0;
         int index = 0;
         for(int i = 0; i < edgarSpawns.Length; i++)
@@ -343,7 +344,7 @@ public class GameManager : MonoBehaviour
         music.pitch = 0.5f;
         edgar.SetActive(true);
         heartBeatIntensifies.Play();
-        yield return new WaitForSeconds(Random.Range(minTimeChaseDuration, maxTimeChaseDuration));
+        yield return new WaitForSecondsRealtime(Random.Range(minTimeChaseDuration, maxTimeChaseDuration));
         UpdateLightState();
     }
 
@@ -352,11 +353,13 @@ public class GameManager : MonoBehaviour
     {
         if(photonView.IsMine)
         {
+            print("master off");
             moddedChase = null;
             moddedChase = StartCoroutine(controlChaseModded());
         }   
         else
         {
+            print("master on");
             StopCoroutine(controlChaseModded());
             flashLight.intensity = 0f;
             theChase = false;
@@ -373,11 +376,13 @@ public class GameManager : MonoBehaviour
     {
         if(!photonView.IsMine)
         {
+            print("client off");
             moddedChase = null;
             moddedChase = StartCoroutine(controlChaseModded());
         }   
         else
         {
+            print("client on");
             StopCoroutine(controlChaseModded());
             flashLight.intensity = 0f;
             theChase = false;
@@ -391,7 +396,6 @@ public class GameManager : MonoBehaviour
 
     IEnumerator controlChase2(float imsorryperson)
     {
-        print("chase in action");
         yield return new WaitForSeconds(Random.Range(minTimeBetweenChase, maxTimeBetweenChase));
         if(imsorryperson > 5)
         {
@@ -410,7 +414,11 @@ public class GameManager : MonoBehaviour
             if(photonView.IsMine)
             {
                 var whoGetsChasedFirst = Random.Range(0, 10);
-                StartCoroutine(controlChase2(whoGetsChasedFirst));
+                if(controlChase2Coroutine == null)
+                {
+                    controlChase2Coroutine = StartCoroutine(controlChase2(whoGetsChasedFirst));
+                }
+                
             }
     }
 

@@ -12215,7 +12215,7 @@ NavMeshAgent:
   m_AgentTypeID: 0
   m_Radius: 0.17
   m_Speed: 50
-  m_Acceleration: 60
+  m_Acceleration: 55
   avoidancePriority: 50
   m_AngularSpeed: 120
   m_StoppingDistance: 0
@@ -30164,8 +30164,8 @@ MonoBehaviour:
   directionalLight: {fileID: 410087040}
   minTimeBetweenChase: 10
   maxTimeBetweenChase: 50
-  minTimeChaseDuration: 20
-  maxTimeChaseDuration: 35
+  minTimeChaseDuration: 5
+  maxTimeChaseDuration: 20
   map: {fileID: 1307959767}
   clips:
   - {fileID: 8300000, guid: ba2b3c94f30acbf4fb7def1f4f7f2413, type: 3}
