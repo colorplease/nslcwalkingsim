@@ -82,12 +82,13 @@ public class CreateAndJoinRooms : MonoBehaviourPunCallbacks
         }
         else
         {
-            errorMessage.SetText("type in a lobby code bro :()");
+            errorMessage.SetText("type in a lobby code bro :(");
         }
     }
 
     public override void OnJoinedRoom()
     {
+        errorMessage.SetText("");
         waiting.SetActive(true);
         yeahIJoinedLetskiss = true;
         StopCoroutine(errorTimeOut);
