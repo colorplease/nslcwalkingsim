@@ -11,6 +11,8 @@ public class CreateAndJoinRooms : MonoBehaviourPunCallbacks
     public TMP_InputField joinInput;
 
     public GameObject CreateAndJoinRoomObject;
+    public GameObject CreateRoomObject;
+    public GameObject JoinRoomObject;
 
     [SerializeField]GameObject waiting;
     [SerializeField]TextMeshProUGUI friendDisplay;
@@ -30,20 +32,58 @@ public class CreateAndJoinRooms : MonoBehaviourPunCallbacks
         CreateAndJoinRoomObject.SetActive(true);
     }
 
+    public void OpenCreateRoom()
+    {
+        CreateAndJoinRoomObject.SetActive(false);
+        CreateRoomObject.SetActive(true);
+    }
+
+    public void OpenJoinRoom()
+    {
+        CreateAndJoinRoomObject.SetActive(false);
+        JoinRoomObject.SetActive(true);
+    }
+
+    public void OpenMainLobbyUI()
+    {
+        JoinRoomObject.SetActive(false);
+        CreateRoomObject.SetActive(false);
+        CreateAndJoinRoomObject.SetActive(true);
+    }
+
     public void CreateRoom()
     {
-        errorTimeOut = StartCoroutine(errorTimeOutCoroutine());
-        PlayerPrefs.SetInt("jumpscare happened", 0);
-        CreateAndJoinRoomObject.SetActive(false);
-        PhotonNetwork.CreateRoom(createInput.text);
+        if(createInput.text != "")
+        {
+            errorTimeOut = StartCoroutine(errorTimeOutCoroutine());
+            PlayerPrefs.SetInt("jumpscare happened", 0);
+            CreateAndJoinRoomObject.SetActive(false);
+            JoinRoomObject.SetActive(false);
+            CreateRoomObject.SetActive(false);
+            PhotonNetwork.CreateRoom(createInput.text);
+        }
+        else
+        {
+            errorMessage.SetText("type in a lobby code bro :()");
+        }
     }
 
     public void JoinRoom()
     {
-        errorTimeOut = StartCoroutine(errorTimeOutCoroutine());
-        PlayerPrefs.SetInt("jumpscare happened", 0);
-        CreateAndJoinRoomObject.SetActive(false);
-        PhotonNetwork.JoinRoom(joinInput.text);
+
+        if(joinInput.text != "")
+        {
+            errorTimeOut = StartCoroutine(errorTimeOutCoroutine());
+            PlayerPrefs.SetInt("jumpscare happened", 0);
+            CreateAndJoinRoomObject.SetActive(false);
+            JoinRoomObject.SetActive(false);
+            CreateRoomObject.SetActive(false);
+            PhotonNetwork.JoinRoom(joinInput.text);
+        }
+        else
+        {
+            errorMessage.SetText("type in a lobby code bro :()");
+        }
     }
 
     public override void OnJoinedRoom()

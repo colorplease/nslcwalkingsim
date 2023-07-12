@@ -16,7 +16,6 @@ public class IntroToGame : MonoBehaviour
     }
     IEnumerator startIntro()
     {
-        otherThing.SetActive(true);
         intro.enabled = true;
         int i = 0;
         while (i < 8) 
@@ -29,8 +28,8 @@ public class IntroToGame : MonoBehaviour
         }
         intro.Stop();
         testThing[8].SetActive(true);
-        yield return new WaitForSecondsRealtime(2f);
-        otherThing.GetComponent<AudioSource>().volume = 1;
+        yield return new WaitForSecondsRealtime(2.2f);
+        otherThing.SetActive(true);
         testThing[8].SetActive(false);
         testThing[9].SetActive(true);
 

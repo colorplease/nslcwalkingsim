@@ -62,7 +62,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
 			m_MouseLook.Init(transform , m_Camera.transform);
         }
 
-        void OnCollisionEnter(Collision other)
+        void OnCollisionStay(Collision other)
         {
             if(other.collider.tag == "Enemy")
             {

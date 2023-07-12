@@ -25,9 +25,9 @@ public class GameManager : MonoBehaviour
     Coroutine openMap;
     Coroutine restartSceneCoroutineStop;
     Coroutine sequenceOpen;
-    Coroutine CHASE;
     Coroutine moddedChase;
     Coroutine controlChase2Coroutine;
+    Coroutine beSpooked;
 
     public int paintingsLeft;
 
@@ -87,7 +87,6 @@ public class GameManager : MonoBehaviour
 
     IEnumerator RestartSceneCoroutine()
     {
-        CHASE = null;
         yield return new WaitForSeconds(0.1f);
         Player.transform.position = new Vector3(45.6f, 0.94f, 73.37f);
         yield return new WaitForSeconds(0.2f);
@@ -111,6 +110,7 @@ public class GameManager : MonoBehaviour
 
     IEnumerator RestartSceneCoroutinePart2()
     {
+        paintingsCollectedHUD.gameObject.SetActive(false);
         deathScreen.SetActive(true);
         deathSecondsLeft.SetText("10");
         yield return new WaitForSeconds(1);
@@ -135,8 +135,7 @@ public class GameManager : MonoBehaviour
         deathSecondsLeft.SetText("0");
         yield return new WaitForSeconds(1);
         deathScreen.SetActive(false);
-        print("e");
-        music.Play();
+        paintingsCollectedHUD.gameObject.SetActive(true);
         //photonView.RPC("ReadyUpGuys", RpcTarget.All);
         string[] ouchie = {"OUCH"};
         StartCoroutine(messageToPlayer(ouchie));
@@ -239,6 +238,13 @@ public class GameManager : MonoBehaviour
         {
             if(mapOpen && edgar.activeSelf)
             {
+                if(beSpooked != null)
+                {
+                    StopCoroutine(beSpooked);
+                }
+                paintingsCollected.gameObject.SetActive(false);
+                string[] beScared = {"HE IS HERE"};
+                beSpooked = StartCoroutine(messageToPlayer(beScared));
                 loadingMenu.SetActive(false);
                 map.SetActive(false);
                 playerController.enabled = true;
@@ -266,6 +272,7 @@ public class GameManager : MonoBehaviour
                     paintingsCollected.gameObject.SetActive(false);
                 }
                 openMap = StartCoroutine(LoadingSequence());
+                paintingsCollectedHUD.gameObject.SetActive(false);
             }
             else
             {
@@ -274,6 +281,7 @@ public class GameManager : MonoBehaviour
                 map.SetActive(false);
                 playerController.enabled = true;
                 StopCoroutine(openMap);
+                paintingsCollectedHUD.gameObject.SetActive(true);
             }
             
         }
@@ -294,6 +302,7 @@ public class GameManager : MonoBehaviour
         else
         {
             paintingsCollected.SetText("LEAVE");
+            paintingsCollectedHUD.SetText("0");
             endWall.SetActive(false);
 
         }
@@ -320,9 +329,9 @@ public class GameManager : MonoBehaviour
         playerController.enabled = false;
         loadingMenu.SetActive(true);
         int i = 0;
-        while (i<6)
+        while (i<5)
         {
-            yield return new WaitForSeconds(Random.Range(0.1f, 0.3f));
+            yield return new WaitForSeconds(Random.Range(0.1f, 0.25f));
             gameSounds.pitch = Random.Range(0.75f, 1.25f);
             gameSounds.PlayOneShot(clips[0], 0.25f);
             loadingPercentage.text = Random.Range(0, 99.99f).ToString() + "%";

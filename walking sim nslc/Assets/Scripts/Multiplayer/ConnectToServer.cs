@@ -29,6 +29,7 @@ public class ConnectToServer : MonoBehaviourPunCallbacks
     IEnumerator connectTimeOut()
     {
         yield return new WaitForSeconds(7f);
+        print("reconnect");
         PhotonNetwork.Disconnect();
         yield return new WaitForSeconds(0.5f);
         PhotonNetwork.ConnectUsingSettings();
