@@ -249,6 +249,7 @@ public class GameManager : MonoBehaviour
                 map.SetActive(false);
                 playerController.enabled = true;
                 StopCoroutine(openMap);
+                paintingsCollectedHUD.gameObject.SetActive(true);
             }
         }
         if(Player.gameObject.GetComponent<FirstPersonController>().isDead)
@@ -506,6 +507,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
+            GameObject.FindGameObjectWithTag("winner").SetActive(false);
             paintingsCollected.gameObject.SetActive(true);
             paintingsCollected.SetText("YOU SUCK");
             gameSounds.PlayOneShot(clips[4]);
@@ -528,6 +530,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
+            GameObject.FindGameObjectWithTag("winner").SetActive(false);
             paintingsCollected.gameObject.SetActive(true);
             paintingsCollected.SetText("YOU SUCK");
             gameSounds.PlayOneShot(clips[4]);
