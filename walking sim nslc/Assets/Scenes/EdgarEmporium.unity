@@ -36565,8 +36565,8 @@ MonoBehaviour:
   directionalLight: {fileID: 410087040}
   minTimeBetweenChase: 10
   maxTimeBetweenChase: 50
-  minTimeChaseDuration: 5
-  maxTimeChaseDuration: 20
+  minTimeChaseDuration: 10
+  maxTimeChaseDuration: 30
   minPowerRespawnTime: 5
   maxPowerRespawnTime: 10
   map: {fileID: 1307959767}

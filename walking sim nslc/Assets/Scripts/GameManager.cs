@@ -268,8 +268,8 @@ public class GameManager : MonoBehaviour
                 }
                 break;
                 case 1:
-                UpdateLightState();
                 lightsCut = true;
+                UpdateLightState();
                 break;
             }
             gameSounds.PlayOneShot(clips[6]);
