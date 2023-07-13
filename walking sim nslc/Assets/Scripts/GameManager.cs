@@ -73,6 +73,7 @@ public class GameManager : MonoBehaviour
 
     public Sprite lagAbility;
     public Sprite lightAbility;
+    public Sprite scareAbility;
     public Image abilityImage;
     public TextMeshProUGUI abilityTitle;
     public GameObject abilityObject;
@@ -182,19 +183,11 @@ public class GameManager : MonoBehaviour
 
     IEnumerator jumpScare()
     {
-        if(PlayerPrefs.GetInt("jumpscare happened") == 1)
-        {
-            yield return new WaitForSeconds(10f);
-            playerController.enabled = false;
-            Player.gameObject.GetComponent<FirstPersonController>().enabled = false;
-            Cursor.lockState = CursorLockMode.None;
+            yield return new WaitForSeconds(2f);
             edgarJumpScare.SetActive(true);
             gameSounds.PlayOneShot(clips[2], 1f);
-            music.Stop();
-            heartBeatIntensifies.Stop();
             yield return new WaitForSeconds(1f);
-            gameOverComponents.SetActive(true);
-        }
+            edgarJumpScare.SetActive(false);
     }
 
     IEnumerator openingSequence()
@@ -255,7 +248,9 @@ public class GameManager : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.F) && powerUpUse)
         {
-            switch(powerUpID)
+            if(numOfPlayersAlive == 2)
+            {
+                switch(powerUpID)
             {
                 case 0:
                 if(photonView.IsMine)
@@ -271,11 +266,28 @@ public class GameManager : MonoBehaviour
                 lightsCut = true;
                 UpdateLightState();
                 break;
+                case 2:
+                if(photonView.IsMine)
+                {
+                    photonView.RPC("jumpScareMaster", RpcTarget.All);
+                }
+                else
+                {
+                    photonView.RPC("jumpScareClient", RpcTarget.All);
+                }
+                break;
             }
             gameSounds.PlayOneShot(clips[6]);
             powerUpUse = false;
             abilityObject.SetActive(false);
             photonView.RPC("AddPlayerAlive", RpcTarget.All);
+            }
+            else
+            {
+                string[] warningMessage = {"WAIT UNTIL YOUR TARGET IS LIVING"};
+                StartCoroutine(messageToPlayer(warningMessage));
+            }
+            
         }
         //print(Vector3.Distance(Player.transform.position, edgar.transform.position));
         if(Vector3.Distance(Player.transform.position, edgar.transform.position) < 30)
@@ -485,22 +497,32 @@ public class GameManager : MonoBehaviour
     public void GeneratePowerUp()
     {
         photonView.RPC("LosePlayerAlive", RpcTarget.All);
-        var powerUpChance = Random.Range(0, 20);
-        if(powerUpChance < 5 && powerUpChance >= 0)
+        var powerUpChance = Random.Range(0,3);
+        switch(powerUpChance)
         {
+            case 0:
             powerUpID = 0;
             abilityImage.sprite = lagAbility;
             abilityTitle.SetText("LAG EXTREME");
             powerUpUse = true;
             abilityObject.SetActive(true);
-        }
-        else if(powerUpChance <= 20 && powerUpChance > 5)
-        {
+            break;
+
+            case 1:
             powerUpID = 1;
             abilityImage.sprite = lightAbility;
             abilityTitle.SetText("CIRCUIT BREAKER");
             powerUpUse = true;
             abilityObject.SetActive(true);
+            break;
+
+            case 2:
+            powerUpID = 2;
+            abilityImage.sprite = scareAbility;
+            abilityTitle.SetText("JUMPSCARE");
+            powerUpUse = true;
+            abilityObject.SetActive(true);
+            break;
         }
     }
 
@@ -551,6 +573,34 @@ public class GameManager : MonoBehaviour
             Application.targetFrameRate =  500;
             string[] frameDebuff = {"OPPONENT FPS LOWERED"};
             StartCoroutine(messageToPlayer(frameDebuff));
+        }
+    }
+
+    [PunRPC]
+    void jumpScareClient()
+    {
+        if(photonView.IsMine)
+        {
+            StartCoroutine(jumpScare());
+        }
+        else
+        {
+            string[] jumpDebuff = {"GET READY FOR THE SCREAM"};
+            StartCoroutine(messageToPlayer(jumpDebuff));
+        }
+    }
+
+    [PunRPC]
+    void jumpScareMaster()
+    {
+        if(!photonView.IsMine)
+        {
+            StartCoroutine(jumpScare());
+        }
+        else
+        {
+            string[] jumpDebuff = {"GET READY FOR THE SCREAM"};
+            StartCoroutine(messageToPlayer(jumpDebuff));
         }
     }
 

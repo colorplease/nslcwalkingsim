@@ -54,6 +54,8 @@ MonoBehaviour:
   - FrameRateDebuffMaster
   - CircuitsBrokenClient
   - CircuitsBrokenMaster
+  - jumpScareClient
+  - jumpScareMaster
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
