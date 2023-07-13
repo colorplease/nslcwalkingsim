@@ -268,6 +268,16 @@ public class GameManager : MonoBehaviour
                 break;
                 case 1:
                 UpdateLightState();
+                if(scribbles.activeSelf)
+                {
+                    string[] lightDebuff = {"LIGHTS OFF"};
+                    StartCoroutine(messageToPlayer(lightDebuff));
+                }
+                else
+                {
+                    string[] lightDebuff = {"LIGHTS ON"};
+                    StartCoroutine(messageToPlayer(lightDebuff));
+                }
                 break;
             }
             gameSounds.PlayOneShot(clips[6]);
@@ -297,7 +307,7 @@ public class GameManager : MonoBehaviour
         if(Player.gameObject.GetComponent<FirstPersonController>().isDead)
         {
             RestartScene();
-            photonView.RPC("AddPlayerAlive", RpcTarget.All);
+            photonView.RPC("LosePlayerAlive", RpcTarget.All);
         }
         if(Input.GetKeyDown(KeyCode.R))
         {
@@ -452,11 +462,6 @@ public class GameManager : MonoBehaviour
             print("master off");
             moddedChase = null;
             moddedChase = StartCoroutine(controlChaseModded());
-            if(powerUpUse)
-            {
-                string[] lightDebuff = {"LIGHTS OFF"};
-                StartCoroutine(messageToPlayer(lightDebuff));
-            }
         }  
         else
         {
@@ -470,11 +475,6 @@ public class GameManager : MonoBehaviour
             heartBeatIntensifies.Stop();
             directionalLight.intensity = 4.15f;
             edgar.SetActive(false);
-            if(powerUpUse)
-            {
-                string[] lightDebuff = {"LIGHTS ON"};
-                StartCoroutine(messageToPlayer(lightDebuff));
-            }
         }
     }
 
