@@ -159,6 +159,7 @@ public class GameManager : MonoBehaviour
         deathScreen.SetActive(false);
         paintingsCollectedHUD.gameObject.SetActive(true);
         photonView.RPC("AddPlayerAlive", RpcTarget.All);
+        StartCoroutine(powerUpSpawn());
         //photonView.RPC("ReadyUpGuys", RpcTarget.All);
         string[] ouchie = {"OUCH"};
         StartCoroutine(messageToPlayer(ouchie));
@@ -480,7 +481,7 @@ public class GameManager : MonoBehaviour
     public void GeneratePowerUp()
     {
         photonView.RPC("LosePlayerAlive", RpcTarget.All);
-        var powerUpChance = Random.Range(0, 10);
+        var powerUpChance = Random.Range(10, 20);
         if(powerUpChance <= 10)
         {
             powerUpID = 0;
@@ -496,36 +497,6 @@ public class GameManager : MonoBehaviour
             abilityTitle.SetText("CIRCUIT BREAKER");
             powerUpUse = true;
             abilityObject.SetActive(true);
-        }
-    }
-
-    [PunRPC]
-    void CircuitsBrokenMaster()
-    {
-        if(!photonView.IsMine)
-        {
-            string[] lightDebuff = {"LIGHTS OFF"};
-            StartCoroutine(messageToPlayer(lightDebuff));
-        }
-        else
-        {
-            string[] lightDebuff = {"LIGHTS ON"};
-            StartCoroutine(messageToPlayer(lightDebuff));
-        }
-    }
-
-    [PunRPC]
-    void CircuitsBrokenClient()
-    {
-        if(photonView.IsMine)
-        {
-            string[] lightDebuff = {"LIGHTS OFF"};
-            StartCoroutine(messageToPlayer(lightDebuff));
-        }
-        else
-        {
-            string[] lightDebuff = {"LIGHTS ON"};
-            StartCoroutine(messageToPlayer(lightDebuff));
         }
     }
 
