@@ -14,6 +14,13 @@ public class IntroToGame : MonoBehaviour
     {
         StartCoroutine(startIntro());
     }
+    void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.K))
+        {
+            networkMAnager.SetActive(true);
+        }
+    }
     IEnumerator startIntro()
     {
         intro.enabled = true;

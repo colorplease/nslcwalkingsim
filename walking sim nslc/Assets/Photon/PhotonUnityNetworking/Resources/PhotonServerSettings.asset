@@ -45,6 +45,13 @@ MonoBehaviour:
   - ReadyUpGuys
   - ClientWin
   - MasterWin
+  - AddPlayerAlive
+  - LosePlayerAlive
+  - GameEnd
+  - chairCollected
+  - StartPowerUpSpawn
+  - FrameRateDebuffClient
+  - FrameRateDebuffMaster
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

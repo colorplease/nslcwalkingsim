@@ -54,6 +54,20 @@ public class InteractScript : MonoBehaviour
                         gameManage.GameEnd();
                     }
             }
+            else if(hit.collider.tag == "chair")
+            {
+                if(!pickUpText.activeSelf && !gameManage.map.activeSelf && !gameManage.loadingMenu.activeSelf)
+                {
+                    pickUpText.SetActive(true);
+                    pickUpText.GetComponent<TextMeshProUGUI>().SetText("Press E to obtain a higher power");
+                }
+                if(Input.GetKeyDown(KeyCode.E))
+                    {
+                        gameManage.chairCollectVoid();
+                        gameManage.gameSounds.PlayOneShot(gameManage.clips[5]);
+                        gameManage.GeneratePowerUp();
+                    }
+            }
             else
             {
                 pickUpText.SetActive(false);

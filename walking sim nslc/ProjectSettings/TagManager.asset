@@ -8,6 +8,7 @@ TagManager:
   - Enemy
   - must
   - winner
+  - chair
   layers:
   - Default
   - TransparentFX

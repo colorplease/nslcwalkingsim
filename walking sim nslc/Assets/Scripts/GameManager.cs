@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine.SceneManagement;
 using UnityStandardAssets.Characters.FirstPerson;
 using Photon.Pun;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -13,6 +14,7 @@ public class GameManager : MonoBehaviour
 
     public float minTimeBetweenChase, maxTimeBetweenChase;
     public float minTimeChaseDuration, maxTimeChaseDuration;
+    public float minPowerRespawnTime, maxPowerRespawnTime;
 
     bool mapOpen;
     public GameObject map;
@@ -56,9 +58,23 @@ public class GameManager : MonoBehaviour
     public bool messageInProgress;
 
     public Transform[] edgarSpawns;
+    public Transform[] powerSpawns;
 
-    [SerializeField]PhotonView photonView;
+    public PhotonView photonView;
     public int numOfPlayersReady;
+    public int numOfPlayersAlive;
+
+    public GameObject scribbles;
+    public GameObject chair;
+
+    public int frameRate = 100;
+    public int powerUpID;
+    public bool powerUpUse;
+
+    public Sprite lagAbility;
+    public Image abilityImage;
+    public TextMeshProUGUI abilityTitle;
+    public GameObject abilityObject;
 
 
     void Start()
@@ -68,6 +84,9 @@ public class GameManager : MonoBehaviour
          sequenceOpen = StartCoroutine(openingSequence());
          StartCoroutine(jumpScare());
          paintingsCollectedHUD.SetText(paintingsLeft.ToString());
+         numOfPlayersAlive = 2;
+        QualitySettings.vSyncCount = 0;
+         Application.targetFrameRate =  500;
     }
 
     public void RestartScene()
@@ -94,6 +113,8 @@ public class GameManager : MonoBehaviour
         Player.gameObject.GetComponent<FirstPersonController>().enabled = true;
         Player.transform.rotation = Quaternion.Euler(0, 0, 0);
         StopAllCoroutines();
+        QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate =  500;
         flashLight.intensity = 0f;
         theChase = false;
         shake.shakeDuration = 0;
@@ -136,6 +157,7 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(1);
         deathScreen.SetActive(false);
         paintingsCollectedHUD.gameObject.SetActive(true);
+        photonView.RPC("AddPlayerAlive", RpcTarget.All);
         //photonView.RPC("ReadyUpGuys", RpcTarget.All);
         string[] ouchie = {"OUCH"};
         StartCoroutine(messageToPlayer(ouchie));
@@ -228,11 +250,25 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        //if(Input.GetKeyDown(KeyCode.L))
-        //{
-            //string[] winner = {"YOU WIN"};
-            //StartCoroutine(messageToPlayer(winner));
-        //}
+        if(Input.GetKeyDown(KeyCode.F) && powerUpUse)
+        {
+            switch(powerUpID)
+            {
+                case 0:
+                if(photonView.IsMine)
+                {
+                    photonView.RPC("FrameRateDebuffMaster", RpcTarget.All);
+                }
+                else
+                {
+                    photonView.RPC("FrameRateDebuffClient", RpcTarget.All);
+                }
+                break;
+            }
+            gameSounds.PlayOneShot(clips[6]);
+            powerUpUse = false;
+            abilityObject.SetActive(false);
+        }
         //print(Vector3.Distance(Player.transform.position, edgar.transform.position));
         if(Vector3.Distance(Player.transform.position, edgar.transform.position) < 30)
         {
@@ -255,6 +291,7 @@ public class GameManager : MonoBehaviour
         if(Player.gameObject.GetComponent<FirstPersonController>().isDead)
         {
             RestartScene();
+            photonView.RPC("LosePlayerAlive", RpcTarget.All);
         }
         if(Input.GetKeyDown(KeyCode.R))
         {
@@ -405,12 +442,14 @@ public class GameManager : MonoBehaviour
     {
         if(photonView.IsMine)
         {
+            scribbles.SetActive(true);
             print("master off");
             moddedChase = null;
             moddedChase = StartCoroutine(controlChaseModded());
         }   
         else
         {
+            scribbles.SetActive(false);
             print("master on");
             StopCoroutine(controlChaseModded());
             flashLight.intensity = 0f;
@@ -423,17 +462,86 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void GeneratePowerUp()
+    {
+        var powerUpChance = Random.Range(0, 10);
+        if(powerUpChance <= 10)
+        {
+            powerUpID = 0;
+            abilityImage.sprite = lagAbility;
+            abilityTitle.SetText("LAG EXTREME");
+            powerUpUse = true;
+            abilityObject.SetActive(true);
+        }
+        else if(powerUpChance <= 20 && powerUpChance >= 10)
+        {
+            UpdateLightState();
+        }
+    }
+
+    IEnumerator frameDebuffTimer()
+    {
+        photonView.RPC("LosePlayerAlive", RpcTarget.All);
+        yield return new WaitForSeconds(30f);
+        QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate =  500;
+        photonView.RPC("AddPlayerAlive", RpcTarget.All);
+    }
+
+    [PunRPC]
+    void FrameRateDebuffClient()
+    {
+        if(photonView.IsMine)
+        {
+            StartCoroutine(frameDebuffTimer());
+            QualitySettings.vSyncCount = 0;
+            Application.targetFrameRate =  30;
+            string[] frameDebuff = {"NO FRAMES?"};
+            StartCoroutine(messageToPlayer(frameDebuff));
+        }
+        else
+        {
+            QualitySettings.vSyncCount = 0;
+            Application.targetFrameRate =  500;
+            string[] frameDebuff = {"OPPONENT FPS LOWERED"};
+            StartCoroutine(messageToPlayer(frameDebuff));
+        }
+    }
+
+    [PunRPC]
+    void FrameRateDebuffMaster()
+    {
+        if(!photonView.IsMine)
+        {
+            StartCoroutine(frameDebuffTimer());
+            QualitySettings.vSyncCount = 0;
+            Application.targetFrameRate =  30;
+            Application.targetFrameRate = frameRate;
+            string[] frameDebuff = {"NO FRAMES?"};
+            StartCoroutine(messageToPlayer(frameDebuff));
+        }
+        else
+        {
+            QualitySettings.vSyncCount = 0;
+            Application.targetFrameRate =  500;
+            string[] frameDebuff = {"OPPONENT FPS LOWERED"};
+            StartCoroutine(messageToPlayer(frameDebuff));
+        }
+    }
+
     [PunRPC]
     void ChangeLightStateClient()
     {
         if(!photonView.IsMine)
         {
+            scribbles.SetActive(true);
             print("client off");
             moddedChase = null;
             moddedChase = StartCoroutine(controlChaseModded());
         }   
         else
         {
+            scribbles.SetActive(false);
             print("client on");
             StopCoroutine(controlChaseModded());
             flashLight.intensity = 0f;
@@ -448,6 +556,7 @@ public class GameManager : MonoBehaviour
 
     IEnumerator controlChase2(float imsorryperson)
     {
+        StartCoroutine(powerUpSpawn());
         yield return new WaitForSeconds(Random.Range(minTimeBetweenChase, maxTimeBetweenChase));
         if(imsorryperson > 5)
         {
@@ -457,6 +566,27 @@ public class GameManager : MonoBehaviour
         {
             photonView.RPC("ChangeLightStateClient", RpcTarget.All);
         }
+        
+    }
+
+    IEnumerator powerUpSpawn()
+    {
+            yield return new WaitForSeconds(Random.Range(minPowerRespawnTime, maxPowerRespawnTime));
+            if(numOfPlayersAlive == 2 && !chair.activeSelf)
+            {
+                photonView.RPC("StartPowerUpSpawn", RpcTarget.All);
+            }
+        StartCoroutine(powerUpSpawn());
+        
+    }
+
+    [PunRPC]
+    void StartPowerUpSpawn()
+    {
+        chair.SetActive(true);
+        chair.transform.position = powerSpawns[Random.Range(0, powerSpawns.Length - 1)].position;
+        string [] powerMessage = {"GO GET IT"};
+        StartCoroutine(messageToPlayer(powerMessage));
     }
 
     [PunRPC]
@@ -474,6 +604,33 @@ public class GameManager : MonoBehaviour
             }
     }
 
+    [PunRPC]
+    void AddPlayerAlive()
+    {
+        numOfPlayersAlive++;
+    }
+
+    [PunRPC]
+    void LosePlayerAlive()
+    {
+        numOfPlayersAlive--;
+    }
+
+    [PunRPC]
+    public void chairCollected()
+    {
+        chair.SetActive(false);
+        string [] powerMessageCollect = {"SOMEONE HAS THE CHAIR"};
+        StartCoroutine(messageToPlayer(powerMessageCollect));
+    }
+
+    public void chairCollectVoid()
+    {
+        photonView.RPC("chairCollected", RpcTarget.All);
+    }
+
+
+    [PunRPC]
     public void GameEnd()
     {
             if(!photonView.IsMine)
