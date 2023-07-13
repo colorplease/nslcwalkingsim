@@ -485,7 +485,7 @@ public class GameManager : MonoBehaviour
     public void GeneratePowerUp()
     {
         photonView.RPC("LosePlayerAlive", RpcTarget.All);
-        var powerUpChance = Random.Range(10, 20);
+        var powerUpChance = Random.Range(0, 20);
         if(powerUpChance <= 10)
         {
             powerUpID = 0;
@@ -531,18 +531,6 @@ public class GameManager : MonoBehaviour
             string[] frameDebuff = {"OPPONENT FPS LOWERED"};
             StartCoroutine(messageToPlayer(frameDebuff));
         }
-        if(scribbles.activeSelf && lightsCut)
-                {
-                    string[] lightDebuff = {"LIGHTS OFF"};
-                    StartCoroutine(messageToPlayer(lightDebuff));
-                    lightsCut = false;
-                }
-                else if(!scribbles.activeSelf && lightsCut)
-                {
-                    string[] lightDebuff = {"LIGHTS ON"};
-                    StartCoroutine(messageToPlayer(lightDebuff));
-                    lightsCut = false;
-                }
     }
 
     [PunRPC]
@@ -575,11 +563,6 @@ public class GameManager : MonoBehaviour
             print("client off");
             moddedChase = null;
             moddedChase = StartCoroutine(controlChaseModded());
-            if(powerUpUse)
-            {
-                string[] lightDebuff = {"LIGHTS OFF"};
-                StartCoroutine(messageToPlayer(lightDebuff));
-            }
         }   
         else
         {
@@ -593,12 +576,19 @@ public class GameManager : MonoBehaviour
             heartBeatIntensifies.Stop();
             directionalLight.intensity = 4.15f;
             edgar.SetActive(false);
-            if(powerUpUse)
-            {
-                string[] lightDebuff = {"LIGHTS ON"};
-                StartCoroutine(messageToPlayer(lightDebuff));
-            }
         }
+        if(scribbles.activeSelf && lightsCut)
+                {
+                    string[] lightDebuff = {"LIGHTS OFF"};
+                    StartCoroutine(messageToPlayer(lightDebuff));
+                    lightsCut = false;
+                }
+                else if(!scribbles.activeSelf && lightsCut)
+                {
+                    string[] lightDebuff = {"LIGHTS ON"};
+                    StartCoroutine(messageToPlayer(lightDebuff));
+                    lightsCut = false;
+                }
     }
 
     IEnumerator controlChase2(float imsorryperson)
