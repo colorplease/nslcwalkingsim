@@ -85,7 +85,6 @@ public class GameManager : MonoBehaviour
          GameObject[] paintings = GameObject.FindGameObjectsWithTag("painting");
          paintingsLeft = paintings.Length;
          sequenceOpen = StartCoroutine(openingSequence());
-         StartCoroutine(jumpScare());
          paintingsCollectedHUD.SetText(paintingsLeft.ToString());
          numOfPlayersAlive = 2;
         QualitySettings.vSyncCount = 0;
@@ -176,7 +175,6 @@ public class GameManager : MonoBehaviour
 
     public void Retry()
     {
-        PlayerPrefs.SetInt("jumpscare happened", 0);
         RestartScene();
         
     }
@@ -248,8 +246,6 @@ public class GameManager : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.F) && powerUpUse)
         {
-            if(numOfPlayersAlive == 2)
-            {
                 switch(powerUpID)
             {
                 case 0:
@@ -281,13 +277,6 @@ public class GameManager : MonoBehaviour
             powerUpUse = false;
             abilityObject.SetActive(false);
             photonView.RPC("AddPlayerAlive", RpcTarget.All);
-            }
-            else
-            {
-                string[] warningMessage = {"WAIT UNTIL YOUR TARGET IS LIVING"};
-                StartCoroutine(messageToPlayer(warningMessage));
-            }
-            
         }
         //print(Vector3.Distance(Player.transform.position, edgar.transform.position));
         if(Vector3.Distance(Player.transform.position, edgar.transform.position) < 30)
