@@ -474,12 +474,12 @@ public class GameManager : MonoBehaviour
                     StartCoroutine(messageToPlayer(lightDebuff));
                     lightsCut = false;
                 }
-                else if(!scribbles.activeSelf && lightsCut)
-                {
+        if(!scribbles.activeSelf && lightsCut)
+        {
                     string[] lightDebuff = {"LIGHTS ON"};
                     StartCoroutine(messageToPlayer(lightDebuff));
                     lightsCut = false;
-                }
+        }
     }
 
     public void GeneratePowerUp()
@@ -583,7 +583,7 @@ public class GameManager : MonoBehaviour
                     StartCoroutine(messageToPlayer(lightDebuff));
                     lightsCut = false;
                 }
-                else if(!scribbles.activeSelf && lightsCut)
+        if(!scribbles.activeSelf && lightsCut)
                 {
                     string[] lightDebuff = {"LIGHTS ON"};
                     StartCoroutine(messageToPlayer(lightDebuff));
