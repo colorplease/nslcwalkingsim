@@ -9835,7 +9835,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 98b37a1395518654bb45c92a3861cbad, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 7ef6240fad0f25c4db56e2df7e52bfe1, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -36622,6 +36622,7 @@ MonoBehaviour:
   powerUpID: 0
   powerUpUse: 0
   lagAbility: {fileID: 21300000, guid: 98b37a1395518654bb45c92a3861cbad, type: 3}
+  lightAbility: {fileID: 21300000, guid: 7ef6240fad0f25c4db56e2df7e52bfe1, type: 3}
   abilityImage: {fileID: 464293390}
   abilityTitle: {fileID: 229572481}
   abilityObject: {fileID: 464293388}

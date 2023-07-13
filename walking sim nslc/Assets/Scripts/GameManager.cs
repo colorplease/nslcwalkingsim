@@ -72,6 +72,7 @@ public class GameManager : MonoBehaviour
     public bool powerUpUse;
 
     public Sprite lagAbility;
+    public Sprite lightAbility;
     public Image abilityImage;
     public TextMeshProUGUI abilityTitle;
     public GameObject abilityObject;
@@ -264,10 +265,14 @@ public class GameManager : MonoBehaviour
                     photonView.RPC("FrameRateDebuffClient", RpcTarget.All);
                 }
                 break;
+                case 1:
+                UpdateLightState();
+                break;
             }
             gameSounds.PlayOneShot(clips[6]);
             powerUpUse = false;
             abilityObject.SetActive(false);
+            photonView.RPC("LosePlayerAlive", RpcTarget.All);
         }
         //print(Vector3.Distance(Player.transform.position, edgar.transform.position));
         if(Vector3.Distance(Player.transform.position, edgar.transform.position) < 30)
@@ -291,7 +296,7 @@ public class GameManager : MonoBehaviour
         if(Player.gameObject.GetComponent<FirstPersonController>().isDead)
         {
             RestartScene();
-            photonView.RPC("LosePlayerAlive", RpcTarget.All);
+            photonView.RPC("AddPlayerAlive", RpcTarget.All);
         }
         if(Input.GetKeyDown(KeyCode.R))
         {
@@ -446,7 +451,12 @@ public class GameManager : MonoBehaviour
             print("master off");
             moddedChase = null;
             moddedChase = StartCoroutine(controlChaseModded());
-        }   
+            if(powerUpUse)
+            {
+                string[] lightDebuff = {"LIGHTS OFF"};
+                StartCoroutine(messageToPlayer(lightDebuff));
+            }
+        }  
         else
         {
             scribbles.SetActive(false);
@@ -459,11 +469,17 @@ public class GameManager : MonoBehaviour
             heartBeatIntensifies.Stop();
             directionalLight.intensity = 4.15f;
             edgar.SetActive(false);
+            if(powerUpUse)
+            {
+                string[] lightDebuff = {"LIGHTS ON"};
+                StartCoroutine(messageToPlayer(lightDebuff));
+            }
         }
     }
 
     public void GeneratePowerUp()
     {
+        photonView.RPC("LosePlayerAlive", RpcTarget.All);
         var powerUpChance = Random.Range(0, 10);
         if(powerUpChance <= 10)
         {
@@ -475,14 +491,48 @@ public class GameManager : MonoBehaviour
         }
         else if(powerUpChance <= 20 && powerUpChance >= 10)
         {
-            UpdateLightState();
+            powerUpID = 1;
+            abilityImage.sprite = lightAbility;
+            abilityTitle.SetText("CIRCUIT BREAKER");
+            powerUpUse = true;
+            abilityObject.SetActive(true);
+        }
+    }
+
+    [PunRPC]
+    void CircuitsBrokenMaster()
+    {
+        if(!photonView.IsMine)
+        {
+            string[] lightDebuff = {"LIGHTS OFF"};
+            StartCoroutine(messageToPlayer(lightDebuff));
+        }
+        else
+        {
+            string[] lightDebuff = {"LIGHTS ON"};
+            StartCoroutine(messageToPlayer(lightDebuff));
+        }
+    }
+
+    [PunRPC]
+    void CircuitsBrokenClient()
+    {
+        if(photonView.IsMine)
+        {
+            string[] lightDebuff = {"LIGHTS OFF"};
+            StartCoroutine(messageToPlayer(lightDebuff));
+        }
+        else
+        {
+            string[] lightDebuff = {"LIGHTS ON"};
+            StartCoroutine(messageToPlayer(lightDebuff));
         }
     }
 
     IEnumerator frameDebuffTimer()
     {
         photonView.RPC("LosePlayerAlive", RpcTarget.All);
-        yield return new WaitForSeconds(30f);
+        yield return new WaitForSecondsRealtime(30f);
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate =  500;
         photonView.RPC("AddPlayerAlive", RpcTarget.All);
@@ -495,7 +545,7 @@ public class GameManager : MonoBehaviour
         {
             StartCoroutine(frameDebuffTimer());
             QualitySettings.vSyncCount = 0;
-            Application.targetFrameRate =  30;
+            Application.targetFrameRate =  15;
             string[] frameDebuff = {"NO FRAMES?"};
             StartCoroutine(messageToPlayer(frameDebuff));
         }
@@ -515,7 +565,7 @@ public class GameManager : MonoBehaviour
         {
             StartCoroutine(frameDebuffTimer());
             QualitySettings.vSyncCount = 0;
-            Application.targetFrameRate =  30;
+            Application.targetFrameRate =  15;
             Application.targetFrameRate = frameRate;
             string[] frameDebuff = {"NO FRAMES?"};
             StartCoroutine(messageToPlayer(frameDebuff));
@@ -538,6 +588,11 @@ public class GameManager : MonoBehaviour
             print("client off");
             moddedChase = null;
             moddedChase = StartCoroutine(controlChaseModded());
+            if(powerUpUse)
+            {
+                string[] lightDebuff = {"LIGHTS OFF"};
+                StartCoroutine(messageToPlayer(lightDebuff));
+            }
         }   
         else
         {
@@ -551,6 +606,11 @@ public class GameManager : MonoBehaviour
             heartBeatIntensifies.Stop();
             directionalLight.intensity = 4.15f;
             edgar.SetActive(false);
+            if(powerUpUse)
+            {
+                string[] lightDebuff = {"LIGHTS ON"};
+                StartCoroutine(messageToPlayer(lightDebuff));
+            }
         }
     }
 
