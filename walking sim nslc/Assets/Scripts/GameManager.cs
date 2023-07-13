@@ -486,7 +486,7 @@ public class GameManager : MonoBehaviour
     {
         photonView.RPC("LosePlayerAlive", RpcTarget.All);
         var powerUpChance = Random.Range(0, 20);
-        if(powerUpChance <= 10)
+        if(powerUpChance < 10 && powerUpChance >= 0)
         {
             powerUpID = 0;
             abilityImage.sprite = lagAbility;
@@ -494,7 +494,7 @@ public class GameManager : MonoBehaviour
             powerUpUse = true;
             abilityObject.SetActive(true);
         }
-        else if(powerUpChance <= 20 && powerUpChance >= 10)
+        else if(powerUpChance <= 20 && powerUpChance > 10)
         {
             powerUpID = 1;
             abilityImage.sprite = lightAbility;
