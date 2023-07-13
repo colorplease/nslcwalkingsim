@@ -76,6 +76,7 @@ public class GameManager : MonoBehaviour
     public Image abilityImage;
     public TextMeshProUGUI abilityTitle;
     public GameObject abilityObject;
+    bool lightsCut = false;
 
 
     void Start()
@@ -244,7 +245,7 @@ public class GameManager : MonoBehaviour
             {
                 photonView.RPC("ChangeLightStateMaster", RpcTarget.All);
             }
-            else
+            else if(photonView.IsMine)
             {
                 photonView.RPC("ChangeLightStateClient", RpcTarget.All);
             }
@@ -268,22 +269,13 @@ public class GameManager : MonoBehaviour
                 break;
                 case 1:
                 UpdateLightState();
-                if(scribbles.activeSelf)
-                {
-                    string[] lightDebuff = {"LIGHTS OFF"};
-                    StartCoroutine(messageToPlayer(lightDebuff));
-                }
-                else
-                {
-                    string[] lightDebuff = {"LIGHTS ON"};
-                    StartCoroutine(messageToPlayer(lightDebuff));
-                }
+                lightsCut = true;
                 break;
             }
             gameSounds.PlayOneShot(clips[6]);
             powerUpUse = false;
             abilityObject.SetActive(false);
-            photonView.RPC("LosePlayerAlive", RpcTarget.All);
+            photonView.RPC("AddPlayerAlive", RpcTarget.All);
         }
         //print(Vector3.Distance(Player.transform.position, edgar.transform.position));
         if(Vector3.Distance(Player.transform.position, edgar.transform.position) < 30)
@@ -476,6 +468,18 @@ public class GameManager : MonoBehaviour
             directionalLight.intensity = 4.15f;
             edgar.SetActive(false);
         }
+        if(scribbles.activeSelf && lightsCut)
+                {
+                    string[] lightDebuff = {"LIGHTS OFF"};
+                    StartCoroutine(messageToPlayer(lightDebuff));
+                    lightsCut = false;
+                }
+                else if(!scribbles.activeSelf && lightsCut)
+                {
+                    string[] lightDebuff = {"LIGHTS ON"};
+                    StartCoroutine(messageToPlayer(lightDebuff));
+                    lightsCut = false;
+                }
     }
 
     public void GeneratePowerUp()
@@ -527,6 +531,18 @@ public class GameManager : MonoBehaviour
             string[] frameDebuff = {"OPPONENT FPS LOWERED"};
             StartCoroutine(messageToPlayer(frameDebuff));
         }
+        if(scribbles.activeSelf && lightsCut)
+                {
+                    string[] lightDebuff = {"LIGHTS OFF"};
+                    StartCoroutine(messageToPlayer(lightDebuff));
+                    lightsCut = false;
+                }
+                else if(!scribbles.activeSelf && lightsCut)
+                {
+                    string[] lightDebuff = {"LIGHTS ON"};
+                    StartCoroutine(messageToPlayer(lightDebuff));
+                    lightsCut = false;
+                }
     }
 
     [PunRPC]
@@ -602,6 +618,7 @@ public class GameManager : MonoBehaviour
 
     IEnumerator powerUpSpawn()
     {
+        print("spawned");
             yield return new WaitForSeconds(Random.Range(minPowerRespawnTime, maxPowerRespawnTime));
             if(numOfPlayersAlive == 2 && !chair.activeSelf)
             {
@@ -616,7 +633,7 @@ public class GameManager : MonoBehaviour
     {
         chair.SetActive(true);
         chair.transform.position = powerSpawns[Random.Range(0, powerSpawns.Length - 1)].position;
-        string [] powerMessage = {"GO GET IT"};
+        string [] powerMessage = {"CHECK YOUR MAP AND GET THE CHAIR"};
         StartCoroutine(messageToPlayer(powerMessage));
     }
 
