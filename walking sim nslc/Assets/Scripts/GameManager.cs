@@ -727,6 +727,7 @@ public class GameManager : MonoBehaviour
         PhotonNetwork.LeaveRoom();
         PhotonNetwork.Disconnect();
         SceneManager.LoadScene("MainMenu");
+        Cursor.lockState = CursorLockMode.None;
     }
 
     [PunRPC]
