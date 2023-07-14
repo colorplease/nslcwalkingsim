@@ -95,7 +95,7 @@ public class GameManager : MonoBehaviour
     {
         if(!restarting)
         {
-            print("yeah");
+            photonView.RPC("LosePlayerAlive", RpcTarget.All);
             Player.gameObject.GetComponent<FirstPersonController>().isDead = false;
             edgar.SetActive(false);
             restarting = true;
@@ -300,7 +300,6 @@ public class GameManager : MonoBehaviour
         if(Player.gameObject.GetComponent<FirstPersonController>().isDead)
         {
             RestartScene();
-            photonView.RPC("LosePlayerAlive", RpcTarget.All);
         }
         if(Input.GetKeyDown(KeyCode.R))
         {
@@ -535,7 +534,7 @@ public class GameManager : MonoBehaviour
             string[] frameDebuff = {"NO FRAMES?"};
             StartCoroutine(messageToPlayer(frameDebuff));
         }
-        else
+        if(!photonView.IsMine)
         {
             QualitySettings.vSyncCount = 0;
             Application.targetFrameRate =  500;
@@ -556,7 +555,7 @@ public class GameManager : MonoBehaviour
             string[] frameDebuff = {"NO FRAMES?"};
             StartCoroutine(messageToPlayer(frameDebuff));
         }
-        else
+        if(photonView.IsMine)
         {
             QualitySettings.vSyncCount = 0;
             Application.targetFrameRate =  500;
@@ -725,7 +724,9 @@ public class GameManager : MonoBehaviour
         
         yield return new WaitForSeconds(8f);
         //add map selector later
-        PhotonNetwork.LoadLevel("EdgarEmporium");
+        PhotonNetwork.LeaveRoom();
+        PhotonNetwork.Disconnect();
+        SceneManager.LoadScene("MainMenu");
     }
 
     [PunRPC]
